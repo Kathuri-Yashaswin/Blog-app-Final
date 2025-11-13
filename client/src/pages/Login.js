@@ -35,7 +35,7 @@ function Login({ setUser }) {
     try {
       const response = await axios.post('/auth/verify-otp', 
         { email: pendingEmail, otp },
-        { withCredentials: true }
+        { withCredentials: true, timeout: 15000 }
       );
 
       localStorage.setItem('token', response.data.token);
@@ -43,7 +43,11 @@ function Login({ setUser }) {
       setUser(response.data.user);
       window.location.href = '/dashboard';
     } catch (err) {
-      setError(err.response?.data?.error || 'OTP verification failed');
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else {
+        setError(err.response?.data?.error || 'OTP verification failed');
+      }
       setLoading(false);
     }
   };
@@ -63,7 +67,8 @@ function Login({ setUser }) {
 
     try {
       const response = await axios.post('/auth/login', loginData, {
-        withCredentials: true
+        withCredentials: true,
+        timeout: 15000
       });
 
       if (response.data.requiresOTP) {
@@ -72,11 +77,18 @@ function Login({ setUser }) {
         setLoginData({ email: '', password: '' });
       } else {
         localStorage.setItem('token', response.data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
         setUser(response.data.user);
         window.location.href = '/dashboard';
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else if (err.response?.status === 401) {
+        setError('Invalid email or password');
+      } else {
+        setError(err.response?.data?.error || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -89,7 +101,8 @@ function Login({ setUser }) {
 
     try {
       const response = await axios.post('/auth/signup', signupData, {
-        withCredentials: true
+        withCredentials: true,
+        timeout: 15000
       });
 
       if (response.data.requiresOTP) {
@@ -98,11 +111,18 @@ function Login({ setUser }) {
         setSignupData({ username: '', email: '', password: '', confirmPassword: '' });
       } else {
         localStorage.setItem('token', response.data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
         setUser(response.data.user);
         window.location.href = '/dashboard';
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Signup failed');
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else if (err.response?.status === 400) {
+        setError(err.response.data.error);
+      } else {
+        setError(err.response?.data?.error || 'Signup failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

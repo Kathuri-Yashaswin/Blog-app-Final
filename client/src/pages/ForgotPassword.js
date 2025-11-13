@@ -21,14 +21,19 @@ function ForgotPassword() {
 
     try {
       const response = await axios.post('/auth/forgot-password', { email }, {
-        withCredentials: true
+        withCredentials: true,
+        timeout: 15000
       });
 
       if (response.data.requiresOTP) {
         setStage('otp');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send OTP');
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else {
+        setError(err.response?.data?.error || 'Failed to send OTP');
+      }
     } finally {
       setLoading(false);
     }
@@ -42,7 +47,7 @@ function ForgotPassword() {
     try {
       await axios.post('/auth/reset-password', 
         { email, otp, newPassword, confirmPassword },
-        { withCredentials: true }
+        { withCredentials: true, timeout: 15000 }
       );
 
       setStage('success');
@@ -50,7 +55,11 @@ function ForgotPassword() {
         window.location.href = '/login';
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Password reset failed');
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else {
+        setError(err.response?.data?.error || 'Password reset failed');
+      }
       setLoading(false);
     }
   };

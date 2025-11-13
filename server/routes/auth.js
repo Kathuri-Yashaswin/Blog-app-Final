@@ -36,7 +36,7 @@ router.post('/signup', async (req, res) => {
     const otpSent = await sendOTPEmail(email, otp);
 
     if (!otpSent) {
-      return res.status(500).json({ error: 'Failed to send OTP. Check email configuration.' });
+      return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
     }
 
     await OTP.findOneAndUpdate(
@@ -92,7 +92,7 @@ router.post('/login', async (req, res) => {
     const otpSent = await sendOTPEmail(email, otp);
 
     if (!otpSent) {
-      return res.status(500).json({ error: 'Failed to send OTP. Check email configuration.' });
+      return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
     }
 
     await OTP.findOneAndUpdate(
@@ -206,6 +206,19 @@ router.get('/google/callback', passport.authenticate('google', {
   })}`);
 });
 
+router.get('/config-check', (req, res) => {
+  const hasGmailConfig = !!(process.env.GMAIL_USER && process.env.GMAIL_PASSWORD);
+  const hasJwtSecret = !!process.env.JWT_SECRET;
+  const hasFrontendUrl = !!process.env.FRONTEND_URL;
+  
+  res.json({
+    gmailConfigured: hasGmailConfig,
+    jwtSecretConfigured: hasJwtSecret,
+    frontendUrlConfigured: hasFrontendUrl,
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 router.get('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
@@ -258,7 +271,7 @@ router.post('/forgot-password', async (req, res) => {
     const otpSent = await sendOTPEmail(email, otp);
 
     if (!otpSent) {
-      return res.status(500).json({ error: 'Failed to send OTP. Check email configuration.' });
+      return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
     }
 
     await OTP.findOneAndUpdate(
