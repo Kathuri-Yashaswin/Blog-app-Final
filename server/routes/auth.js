@@ -191,16 +191,24 @@ router.get('/google', passport.authenticate('google', {
 }));
 
 router.get('/google/callback', passport.authenticate('google', {
-  failureRedirect: 'http://localhost:3000/login',
-  successRedirect: 'http://localhost:3000/google-callback'
-}));
+  failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`
+}), (req, res) => {
+  const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  res.redirect(`${frontendUrl}/google-callback?token=${token}&user=${JSON.stringify({
+    _id: req.user._id,
+    username: req.user.username,
+    email: req.user.email,
+    name: req.user.name
+  })}`);
+});
 
 router.get('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
       return res.status(500).json({ error: 'Logout failed' });
     }
-    res.redirect('http://localhost:3000/');
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/`);
   });
 });
 
