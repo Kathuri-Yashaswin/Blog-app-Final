@@ -49,6 +49,9 @@ router.post('/signup', async (req, res) => {
       const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
       req.login(newUser, (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Login failed after signup' });
+        }
         res.json({
           message: 'Signup successful',
           token,
@@ -124,6 +127,9 @@ router.post('/login', async (req, res) => {
     if (skipOTP) {
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
       req.login(user, (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Login failed' });
+        }
         res.json({
           message: 'Login successful',
           token,

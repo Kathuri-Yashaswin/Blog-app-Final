@@ -250,11 +250,13 @@ function Login({ setUser }) {
                 {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <Link to="/forgot-password" style={{ color: '#667eea', textDecoration: 'none', fontSize: '0.9rem' }}>
-                Forgot Password?
-              </Link>
-            </div>
+            {process.env.NODE_ENV !== 'production' && (
+              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                <Link to="/forgot-password" style={{ color: '#667eea', textDecoration: 'none', fontSize: '0.9rem' }}>
+                  Forgot Password?
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
           <div className="tab-content">
