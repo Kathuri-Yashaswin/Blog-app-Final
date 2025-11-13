@@ -1,0 +1,132 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 2rem;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #0056b3;
+}
+
+.user-profile {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 3rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profile-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #007bff;
+}
+
+.profile-info h1 {
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.profile-email {
+  color: #666;
+  font-size: 1.05rem;
+}
+
+.user-blogs-section h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.no-blogs-message {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  color: #666;
+}
+
+.blogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.blog-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.blog-title-link {
+  text-decoration: none;
+}
+
+.blog-title {
+  color: #222;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+
+.blog-title-link:hover .blog-title {
+  color: #007bff;
+}
+
+.blog-date {
+  color: #999;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.blog-excerpt {
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.read-more {
+  color: #007bff;
+  font-weight: 600;
+  transition: color 0.3s;
+  text-decoration: none;
+}
+
+.read-more:hover {
+  color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .blogs-grid {
+    grid-template-columns: 1fr;
+  }
+}

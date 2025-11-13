@@ -1,0 +1,59 @@
+.create-blog-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-blog-container h1 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.submit-btn {
+  background-color: #28a745;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.submit-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #545b62;
+}
+
+.cancel-btn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .create-blog-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .button-group {
+    flex-direction: column !important;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+}

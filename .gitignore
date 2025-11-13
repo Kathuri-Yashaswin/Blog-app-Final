@@ -1,0 +1,9 @@
+README.md
+SETUP_GUIDE.md
+.env
+.env.local
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
