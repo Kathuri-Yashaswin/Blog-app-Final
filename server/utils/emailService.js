@@ -24,7 +24,7 @@ const sendOTPEmail = async (email, otp) => {
       const resend = new Resend(process.env.RESEND_API_KEY);
 
       const result = await resend.emails.send({
-        from: 'yashaswinghana@gmail.com',
+        from: 'onboarding@resend.dev',
         to: email,
         subject: 'Blog App - OTP Verification',
         html: `
