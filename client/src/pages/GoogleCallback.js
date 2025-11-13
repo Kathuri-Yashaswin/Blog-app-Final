@@ -10,13 +10,12 @@ function GoogleCallback({ setUser }) {
     const authenticateUser = async () => {
       try {
         const token = searchParams.get('token');
-        const userParam = searchParams.get('user');
 
-        if (token && userParam) {
+        if (token) {
           localStorage.setItem('token', token);
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const user = JSON.parse(decodeURIComponent(userParam));
-          setUser(user);
+          const response = await axios.get('/auth/user', { withCredentials: true });
+          setUser(response.data);
           navigate('/dashboard');
         } else {
           const response = await axios.get('/auth/user', { withCredentials: true });

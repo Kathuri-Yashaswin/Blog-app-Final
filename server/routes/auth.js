@@ -77,12 +77,15 @@ router.post('/login', async (req, res) => {
     }
 
     if (!user.password) {
-      return res.status(401).json({ error: 'This email is registered with Google OAuth' });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+      user.authType = 'manual';
+      await user.save();
+    } else {
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
     }
 
     const otp = generateOTP();

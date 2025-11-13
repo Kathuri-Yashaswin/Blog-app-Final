@@ -1,12 +1,28 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const Blog = require('../models/Blog');
+const User = require('../models/User');
 const router = express.Router();
 
-const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  } else {
+const isAuthenticated = async (req, res, next) => {
+  try {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
+      if (user) {
+        req.user = user;
+        return next();
+      }
+    }
+
     res.status(401).json({ error: 'Not authenticated' });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
   }
 };
 

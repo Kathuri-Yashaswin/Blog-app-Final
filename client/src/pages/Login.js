@@ -39,6 +39,7 @@ function Login({ setUser }) {
       );
 
       localStorage.setItem('token', response.data.token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       setUser(response.data.user);
       window.location.href = '/dashboard';
     } catch (err) {
