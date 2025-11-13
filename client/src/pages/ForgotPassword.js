@@ -27,6 +27,8 @@ function ForgotPassword() {
 
       if (response.data.requiresOTP) {
         setStage('otp');
+      } else if (response.data.canReset) {
+        setStage('reset');
       }
     } catch (err) {
       if (err.code === 'ECONNABORTED') {
@@ -47,6 +49,31 @@ function ForgotPassword() {
     try {
       await axios.post('/auth/reset-password', 
         { email, otp, newPassword, confirmPassword },
+        { withCredentials: true, timeout: 15000 }
+      );
+
+      setStage('success');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
+    } catch (err) {
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else {
+        setError(err.response?.data?.error || 'Password reset failed');
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleDirectReset = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await axios.post('/auth/reset-password', 
+        { email, newPassword, confirmPassword },
         { withCredentials: true, timeout: 15000 }
       );
 
@@ -165,6 +192,73 @@ function ForgotPassword() {
               onClick={() => {
                 setStage('email');
                 setOtp('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setError('');
+              }}
+              className="back-btn"
+            >
+              Back to Email
+            </button>
+          </div>
+        )}
+
+        {stage === 'reset' && (
+          <div className="forgot-password-form">
+            <p className="form-desc">Enter your new password</p>
+            {error && <div className="error-message">{error}</div>}
+
+            <form onSubmit={handleDirectReset}>
+              <div className="form-group password-group">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="New password (min 6 chars)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={loading}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  disabled={loading}
+                >
+                  {showNewPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+
+              <div className="form-group password-group">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={loading}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={loading}
+                >
+                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={loading}
+              >
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </button>
+            </form>
+
+            <button
+              onClick={() => {
+                setStage('email');
                 setNewPassword('');
                 setConfirmPassword('');
                 setError('');

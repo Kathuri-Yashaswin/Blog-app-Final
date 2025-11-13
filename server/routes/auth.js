@@ -32,35 +32,63 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    const otp = generateOTP();
-    const otpSent = await sendOTPEmail(email, otp);
-
-    if (!otpSent) {
-      return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    await OTP.findOneAndUpdate(
-      { email },
-      { 
-        email, 
-        otp,
-        signupData: {
-          username,
-          email,
-          password: hashedPassword,
-          authType: 'manual'
-        }
-      },
-      { upsert: true }
-    );
+    const skipOTP = process.env.NODE_ENV === 'production';
 
-    res.json({
-      message: 'OTP sent to email',
-      email,
-      requiresOTP: true
-    });
+    if (skipOTP) {
+      const newUser = new User({
+        username,
+        email,
+        password: hashedPassword,
+        name: username,
+        authType: 'manual'
+      });
+
+      await newUser.save();
+
+      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+      req.login(newUser, (err) => {
+        res.json({
+          message: 'Signup successful',
+          token,
+          user: {
+            _id: newUser._id,
+            username: newUser.username,
+            email: newUser.email,
+            name: newUser.name
+          }
+        });
+      });
+    } else {
+      const otp = generateOTP();
+      const otpSent = await sendOTPEmail(email, otp);
+
+      if (!otpSent) {
+        return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
+      }
+
+      await OTP.findOneAndUpdate(
+        { email },
+        { 
+          email, 
+          otp,
+          signupData: {
+            username,
+            email,
+            password: hashedPassword,
+            authType: 'manual'
+          }
+        },
+        { upsert: true }
+      );
+
+      res.json({
+        message: 'OTP sent to email',
+        email,
+        requiresOTP: true
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,24 +119,42 @@ router.post('/login', async (req, res) => {
       }
     }
 
-    const otp = generateOTP();
-    const otpSent = await sendOTPEmail(email, otp);
+    const skipOTP = process.env.NODE_ENV === 'production';
 
-    if (!otpSent) {
-      return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
+    if (skipOTP) {
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      req.login(user, (err) => {
+        res.json({
+          message: 'Login successful',
+          token,
+          user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            name: user.name
+          }
+        });
+      });
+    } else {
+      const otp = generateOTP();
+      const otpSent = await sendOTPEmail(email, otp);
+
+      if (!otpSent) {
+        return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
+      }
+
+      await OTP.findOneAndUpdate(
+        { email },
+        { email, otp },
+        { upsert: true }
+      );
+
+      res.json({
+        message: 'OTP sent to email',
+        email,
+        requiresOTP: true
+      });
     }
-
-    await OTP.findOneAndUpdate(
-      { email },
-      { email, otp },
-      { upsert: true }
-    );
-
-    res.json({
-      message: 'OTP sent to email',
-      email,
-      requiresOTP: true
-    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -261,24 +307,35 @@ router.post('/forgot-password', async (req, res) => {
       return res.status(400).json({ error: 'This email is registered with Google OAuth. Cannot reset password.' });
     }
 
-    const otp = generateOTP();
-    const otpSent = await sendOTPEmail(email, otp);
+    const skipOTP = process.env.NODE_ENV === 'production';
 
-    if (!otpSent) {
-      return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
+    if (skipOTP) {
+      res.json({
+        message: 'Use password reset form',
+        email,
+        requiresOTP: false,
+        canReset: true
+      });
+    } else {
+      const otp = generateOTP();
+      const otpSent = await sendOTPEmail(email, otp);
+
+      if (!otpSent) {
+        return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
+      }
+
+      await OTP.findOneAndUpdate(
+        { email },
+        { email, otp },
+        { upsert: true }
+      );
+
+      res.json({
+        message: 'OTP sent to email',
+        email,
+        requiresOTP: true
+      });
     }
-
-    await OTP.findOneAndUpdate(
-      { email },
-      { email, otp },
-      { upsert: true }
-    );
-
-    res.json({
-      message: 'OTP sent to email',
-      email,
-      requiresOTP: true
-    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -287,9 +344,14 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { email, otp, newPassword, confirmPassword } = req.body;
+    const skipOTP = process.env.NODE_ENV === 'production';
 
-    if (!email || !otp || !newPassword || !confirmPassword) {
+    if (!email || !newPassword || !confirmPassword) {
       return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (!skipOTP && !otp) {
+      return res.status(400).json({ error: 'OTP is required' });
     }
 
     if (newPassword !== confirmPassword) {
@@ -300,9 +362,12 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const otpRecord = await OTP.findOne({ email });
-    if (!otpRecord || otpRecord.otp !== otp) {
-      return res.status(401).json({ error: 'Invalid or expired OTP' });
+    if (!skipOTP) {
+      const otpRecord = await OTP.findOne({ email });
+      if (!otpRecord || otpRecord.otp !== otp) {
+        return res.status(401).json({ error: 'Invalid or expired OTP' });
+      }
+      await OTP.deleteOne({ email });
     }
 
     const user = await User.findOne({ email });
@@ -313,8 +378,6 @@ router.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
-
-    await OTP.deleteOne({ email });
 
     res.json({
       message: 'Password reset successful',
