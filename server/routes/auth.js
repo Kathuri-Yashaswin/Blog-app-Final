@@ -39,19 +39,22 @@ router.post('/signup', async (req, res) => {
       return res.status(500).json({ error: 'Failed to send OTP. Gmail credentials may not be configured. Please try again or contact support.' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
     await OTP.findOneAndUpdate(
       { email },
-      { email, otp },
+      { 
+        email, 
+        otp,
+        signupData: {
+          username,
+          email,
+          password: hashedPassword,
+          authType: 'manual'
+        }
+      },
       { upsert: true }
     );
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    req.session.signupData = {
-      username,
-      email,
-      password: hashedPassword,
-      authType: 'manual'
-    };
 
     res.json({
       message: 'OTP sent to email',
@@ -101,10 +104,6 @@ router.post('/login', async (req, res) => {
       { upsert: true }
     );
 
-    req.session.loginData = {
-      userId: user._id
-    };
-
     res.json({
       message: 'OTP sent to email',
       email,
@@ -128,8 +127,8 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(401).json({ error: 'Invalid or expired OTP' });
     }
 
-    if (req.session.signupData) {
-      const userData = req.session.signupData;
+    if (otpRecord.signupData) {
+      const userData = otpRecord.signupData;
       const newUser = new User({
         username: userData.username,
         email: userData.email,
@@ -140,7 +139,6 @@ router.post('/verify-otp', async (req, res) => {
 
       await newUser.save();
       await OTP.deleteOne({ email });
-      delete req.session.signupData;
 
       const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -156,16 +154,14 @@ router.post('/verify-otp', async (req, res) => {
           }
         });
       });
-    } else if (req.session.loginData) {
-      const userId = req.session.loginData.userId;
-      const user = await User.findById(userId);
+    } else {
+      const user = await User.findOne({ email });
 
       if (!user) {
         return res.status(401).json({ error: 'User not found' });
       }
 
       await OTP.deleteOne({ email });
-      delete req.session.loginData;
 
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -181,8 +177,6 @@ router.post('/verify-otp', async (req, res) => {
           }
         });
       });
-    } else {
-      return res.status(400).json({ error: 'Invalid session. Please try again.' });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -280,8 +274,6 @@ router.post('/forgot-password', async (req, res) => {
       { upsert: true }
     );
 
-    req.session.resetData = { email };
-
     res.json({
       message: 'OTP sent to email',
       email,
@@ -323,7 +315,6 @@ router.post('/reset-password', async (req, res) => {
     await user.save();
 
     await OTP.deleteOne({ email });
-    delete req.session.resetData;
 
     res.json({
       message: 'Password reset successful',
