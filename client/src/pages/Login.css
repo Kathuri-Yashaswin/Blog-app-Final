@@ -2,15 +2,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
 }
 
 .login-card {
   background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
   max-width: 450px;
   width: 100%;
 }
@@ -76,17 +77,18 @@
 }
 
 .form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.875rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
 }
 
 .form-group input:disabled {
@@ -128,34 +130,39 @@
 }
 
 .submit-btn {
-  padding: 0.75rem 1.5rem;
-  background-color: #667eea;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   margin-top: 0.5rem;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
 }
 
 .submit-btn:disabled {
-  background-color: #999;
+  background: #ccc;
   cursor: not-allowed;
+  transform: none;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #fed7d7 0%, #fc8181 5%);
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+  border-left: 4px solid #c53030;
+  box-shadow: 0 4px 12px rgba(197, 48, 48, 0.1);
 }
 
 .divider {
@@ -189,21 +196,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   background-color: white;
   color: #333;
-  border: 2px solid #ddd;
-  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  padding: 0.875rem 1.5rem;
   font-size: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   margin-bottom: 1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .google-login-btn:hover:not(:disabled) {
-  background-color: #f5f5f5;
+  background-color: #f7fafc;
   border-color: #667eea;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.15);
 }
 
 .google-login-btn:disabled {
@@ -231,22 +241,83 @@
 }
 
 @media (max-width: 768px) {
+  .login-container {
+    min-height: calc(100vh - 60px);
+  }
+
   .login-card {
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     margin: 1rem;
+    border-radius: 16px;
+  }
+
+  .login-card h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tabs {
+    margin-bottom: 1.5rem;
+  }
+
+  .tab-btn {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .form-group input {
+    padding: 0.875rem;
+    font-size: 16px;
+  }
+
+  .submit-btn {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .google-login-btn {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .divider {
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .login-info {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 12px;
   }
 
   .login-card h1 {
     font-size: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
   }
 
-  .tabs {
-    margin-bottom: 1rem;
+  .form-group input {
+    padding: 0.75rem;
+    font-size: 16px;
+  }
+
+  .submit-btn,
+  .google-login-btn {
+    padding: 0.875rem;
+    font-size: 0.95rem;
   }
 
   .tab-btn {
-    padding: 0.75rem;
-    font-size: 0.9rem;
+    padding: 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  .password-toggle {
+    right: 0.5rem;
   }
 }

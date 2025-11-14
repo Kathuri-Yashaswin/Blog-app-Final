@@ -14,8 +14,8 @@
 .blog-detail {
   background-color: white;
   padding: 3rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   max-width: 800px;
   margin: 0 auto;
 }
@@ -116,21 +116,129 @@
   text-decoration: underline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .blog-detail {
-    padding: 1.5rem;
+    padding: 2.5rem;
+  }
+
+  .blog-detail-header h1 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .back-link {
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .blog-detail {
+    padding: 1.75rem 1.25rem;
+    border-radius: 10px;
+  }
+
+  .blog-detail-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   .blog-detail-header h1 {
     font-size: 1.8rem;
+    margin-bottom: 0.75rem;
   }
 
   .blog-meta {
     flex-direction: column;
     gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .blog-content {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .blog-content p {
+    margin-bottom: 1.25rem;
   }
 
   .blog-actions {
     flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  .edit-btn,
+  .dashboard-btn {
+    padding: 0.7rem 1.25rem;
+  }
+
+  .blog-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-link {
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .blog-detail {
+    padding: 1.5rem 1rem;
+    border-radius: 8px;
+  }
+
+  .blog-detail-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .blog-detail-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .blog-meta {
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+  }
+
+  .blog-content {
+    margin-bottom: 1.25rem;
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  .blog-content p {
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .blog-actions {
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 1.25rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .edit-btn,
+  .dashboard-btn {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  .blog-footer {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+  }
+
+  .author-profile {
+    font-size: 0.9rem;
   }
 }

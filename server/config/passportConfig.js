@@ -8,18 +8,31 @@ passport.use(new GoogleStrategy({
   callbackURL: process.env.GOOGLE_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
+    const googleEmail = profile.emails[0].value;
+    
     let user = await User.findOne({ googleId: profile.id });
     
     if (!user) {
-      user = new User({
-        googleId: profile.id,
-        name: profile.displayName,
-        username: profile.displayName,
-        email: profile.emails[0].value,
-        profileImage: profile.photos[0]?.value,
-        authType: 'google'
-      });
-      await user.save();
+      user = await User.findOne({ email: googleEmail });
+      
+      if (user) {
+        user.googleId = profile.id;
+        user.authType = 'google';
+        if (!user.profileImage && profile.photos[0]?.value) {
+          user.profileImage = profile.photos[0].value;
+        }
+        await user.save();
+      } else {
+        user = new User({
+          googleId: profile.id,
+          name: profile.displayName,
+          username: profile.displayName,
+          email: googleEmail,
+          profileImage: profile.photos[0]?.value,
+          authType: 'google'
+        });
+        await user.save();
+      }
     }
     
     return done(null, user);
